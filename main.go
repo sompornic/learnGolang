@@ -2,9 +2,17 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+
+	"context"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // album represents data about a record album.
@@ -43,7 +51,31 @@ func postAlbums(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, newAlbum)
 }
 
+var collection *mongo.Collection
+var ctx = context.TODO()
+
 func main() {
+	// mongodb://serveradm:mypassword@localhost:27017/learngolang
+	clientOptions := options.Client().ApplyURI("mongodb://serveradm:mypassword@localhost:27017/learngolang")
+	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	client, err := mongo.Connect(ctx, clientOptions)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Connected OK")
+	var testdataFind = client.Database("learngolang").Collection("test")
+	var podcast bson.M
+	if err = testdataFind.FindOne(ctx, bson.M{}).Decode(&podcast); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("podcast: ", podcast)
+
+	err = client.Disconnect(ctx)
+
 	router := gin.Default()
 	router.GET("/albums", getAlbums)
 	router.POST("/albums", postAlbums)
