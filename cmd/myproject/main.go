@@ -56,7 +56,7 @@ var ctx = context.TODO()
 
 func main() {
 	// mongodb://serveradm:mypassword@localhost:27017/learngolang
-	clientOptions := options.Client().ApplyURI("mongodb://serveradm:mypassword@localhost:27017/learngolang")
+	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017/learngolang")
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
